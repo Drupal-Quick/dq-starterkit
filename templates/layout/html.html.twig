@@ -1,0 +1,83 @@
+{#
+/**
+ * @file
+ * HTML document structure, tuned for a static, edge-hosted build:
+ * resource hints, inlined critical CSS, and Speculation Rules prerendering.
+ *
+ * Variables:
+ * - head_title: Array of parts of the <title> tag.
+ * - page_top, page, page_bottom: Rendered page markup.
+ * - html_attributes, attributes: Element attributes.
+ * - placeholder_token: Token for head/css/js placeholders.
+ * - inline_css: Compiled theme CSS, inlined to avoid a render-blocking request
+ *   (set by the 'html' preprocessor; skipped while the Vite dev server runs).
+ *
+ * @see template_preprocess_html()
+ * @ingroup themeable
+ */
+#}
+<!DOCTYPE html>
+<html{{ html_attributes }}>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head-placeholder token="{{ placeholder_token }}">
+    <title>{{ head_title|safe_join(' | ') }}</title>
+
+    {# --- Resource hints ------------------------------------------------- #}
+    {# Self-host fonts so there are zero third-party origins. If you keep an
+       external origin (analytics, CDN), preconnect to it to save the DNS+TLS
+       round trip. Example, commented: #}
+    {#
+    <link rel="preconnect" href="https://cdn.example.com" crossorigin>
+    #}
+    {# Preload the LCP web font (self-hosted woff2):
+    <link rel="preload" href="/themes/custom/THEME/fonts/inter-var.woff2"
+          as="font" type="font/woff2" crossorigin>
+    #}
+
+    {# Core/module CSS loads here. #}
+    <css-placeholder token="{{ placeholder_token }}">
+    {# The theme's compiled CSS is tiny, so it's inlined to drop the
+       render-blocking request; the linked copy is removed in hook_css_alter()
+       so it isn't loaded twice. Skipped automatically in Vite dev mode. #}
+    {% if inline_css %}
+      <style>{{ inline_css|raw }}</style>
+    {% endif %}
+
+    <js-placeholder token="{{ placeholder_token }}">
+  </head>
+  <body{{ attributes }}>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4">
+      {{- 'Skip to main content'|t -}}
+    </a>
+    {{ page_top }}
+    {{ page }}
+    {{ page_bottom }}
+    <js-bottom-placeholder token="{{ placeholder_token }}">
+
+    {# --- Speculation Rules: instant same-origin navigation -------------- #}
+    {# Chromium prerenders/prefetches eligible links; other browsers ignore it
+       (graceful). Static + edge hosting makes prerender cheap and effective.
+       'moderate' fires on hover / pointerdown. Tune the exclusions for
+       downloads, feeds, and anything marked opt-out. #}
+    <script type="speculationrules">
+    {
+      "prerender": [{
+        "where": {
+          "and": [
+            { "href_matches": "/*" },
+            { "not": { "href_matches": "/*.{pdf,zip,xml,rss}" } },
+            { "not": { "selector_matches": "a[rel~=nofollow], [data-no-prerender] a" } }
+          ]
+        },
+        "eagerness": "moderate"
+      }],
+      "prefetch": [{
+        "where": { "href_matches": "/*" },
+        "eagerness": "conservative"
+      }]
+    }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,267 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Registration helper — must be defined before the glob loads includes.
+ *
+ * Recipe-injected .theme.inc files register preprocess closures by calling this
+ * helper. When the theme is generated, `drupal generate-theme` rewrites the
+ * starterkit's machine name (dq_starterkit) to the new theme's machine name
+ * throughout, so this helper ends up named e.g. my_theme_add_preprocessor().
+ * Recipe assets are injected by dq:scaffold after generation and carry a
+ * STARTERKIT token that dq:scaffold replaces with the same machine name, so the
+ * helper and its callers always resolve to the same function.
+ *
+ * This pattern is aligned with Drupal core's own direction: issue #3266641
+ * on drupal.org opened the theme system to PHP callables as preprocess
+ * callbacks, and Drupal 11.3+ deprecates magic function-name discovery in
+ * favour of explicit callback registration via hook_theme_registry_alter().
+ */
+function dq_starterkit_add_preprocessor(string $hook, callable $fn): void {
+  $GLOBALS['_preprocessors']['dq_starterkit'][$hook][] = $fn;
+}
+
+/**
+ * Auto-discover and load recipe-injected theme includes.
+ *
+ * Only files present here are loaded — nothing lands in includes/ unless
+ * the matching recipe was applied during dq:scaffold, so there are no
+ * irrelevant functions from recipes that were not chosen.
+ */
+foreach (glob(__DIR__ . '/includes/*.theme.inc') as $_include) {
+  require_once $_include;
+}
+
+/**
+ * Implements hook_preprocess().
+ *
+ * A single Drupal hook covers every template, delegating to all callbacks
+ * registered for that hook. Two recipe includes can both register for the
+ * same hook (e.g. 'page') without any conflict — they are sequential
+ * entries in the same array, called in the order recipes were applied.
+ */
+function dq_starterkit_preprocess(array &$variables, string $hook): void {
+  // Drupal invokes this generic preprocess with the most specific *registered*
+  // theme hook. For some modules that is a suggestion rather than the base —
+  // notably Views, which registers per-view hooks (e.g.
+  // 'views_view__writing__page_1'). Callbacks register under the base hook
+  // ('views_view', 'node', 'page'), so when a suggestion hook (containing '__')
+  // fires, also dispatch the base hook — otherwise those registrations would
+  // silently never run.
+  $hooks = [$hook];
+  if (($pos = strpos($hook, '__')) !== FALSE) {
+    $hooks[] = substr($hook, 0, $pos);
+  }
+  foreach ($hooks as $candidate) {
+    foreach ($GLOBALS['_preprocessors']['dq_starterkit'][$candidate] ?? [] as $fn) {
+      $fn($variables, $hook);
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * When the Vite dev server is running, swap production dist/ assets for live
+ * HMR assets served from localhost:5173. The vite.config.js writes a
+ * .vite-dev marker file on server start and removes it on close/build.
+ */
+function dq_starterkit_page_attachments_alter(array &$attachments): void {
+  $theme  = \Drupal::theme()->getActiveTheme();
+  $marker = DRUPAL_ROOT . '/' . $theme->getPath() . '/.vite-dev';
+
+  if (!file_exists($marker)) {
+    return;
+  }
+
+  // The marker stores the dev server's full public origin (written by
+  // vite.config.js), e.g. https://my-site.ddev.site:5173 under DDEV or
+  // http://localhost:5173 on a bare host.
+  $origin = trim(file_get_contents($marker)) ?: 'http://localhost:5173';
+
+  $attachments['#attached']['library'] = array_filter(
+    $attachments['#attached']['library'] ?? [],
+    static fn($lib) => $lib !== $theme->getName() . '/global'
+  );
+
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#type'       => 'html_tag',
+      '#tag'        => 'script',
+      '#attributes' => ['type' => 'module', 'src' => "{$origin}/@vite/client"],
+    ],
+    'vite_client',
+  ];
+
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#type'       => 'html_tag',
+      '#tag'        => 'script',
+      '#attributes' => ['type' => 'module', 'src' => "{$origin}/src/main.js"],
+    ],
+    'vite_main',
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for html templates.
+ */
+function dq_starterkit_preprocess_html(array &$variables): void {
+  $variables['attributes']['class'][] = 'antialiased';
+
+  // Inline the compiled theme CSS (it's tiny) so there's no render-blocking
+  // stylesheet request. Skipped while the Vite dev server is running, since
+  // HMR serves CSS live; the linked copy is removed in
+  // dq_starterkit_css_alter() to avoid loading it twice.
+  $themePath = \Drupal::theme()->getActiveTheme()->getPath();
+  $cssFile   = DRUPAL_ROOT . '/' . $themePath . '/dist/main.css';
+  if (!file_exists(DRUPAL_ROOT . '/' . $themePath . '/.vite-dev') && is_file($cssFile)) {
+    $variables['inline_css'] = file_get_contents($cssFile);
+  }
+}
+
+/**
+ * Implements hook_css_alter().
+ *
+ * The compiled theme CSS is inlined in html.html.twig (see preprocess_html), so
+ * remove the linked copy to prevent loading it twice. Core and module CSS are
+ * left untouched. In Vite dev mode the link is left in place (nothing is
+ * inlined; the dev server handles CSS).
+ */
+function dq_starterkit_css_alter(array &$css): void {
+  $themePath = \Drupal::theme()->getActiveTheme()->getPath();
+  if (file_exists(DRUPAL_ROOT . '/' . $themePath . '/.vite-dev')) {
+    return;
+  }
+  foreach (array_keys($css) as $key) {
+    if (str_contains($key, $themePath . '/dist/main.css')) {
+      unset($css[$key]);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for page templates.
+ */
+function dq_starterkit_preprocess_page(array &$variables): void {
+  $variables['has_sidebar'] = !empty($variables['page']['sidebar']);
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for node templates.
+ *
+ * Attaches a Schema.org WebPage JSON-LD block to the document <head> for
+ * full-page Basic Page renders. Built by hand from the node's own fields — no
+ * Metatag/Schema.org module required, and the output is fully static-export
+ * friendly (Tome).
+ *
+ * Articles get their own richer BlogPosting markup from the blog recipe's
+ * template; this is scoped to the 'page' bundle so the two never overlap.
+ * Pages have no custom node template in the starterkit, so the JSON-LD goes
+ * in the <head> (a canonical location Google accepts) rather than the body.
+ */
+function dq_starterkit_preprocess_node(array &$variables): void {
+  $node = $variables['node'];
+  if ($node->bundle() !== 'page' || ($variables['view_mode'] ?? '') !== 'full') {
+    return;
+  }
+
+  $variables['#attached']['html_head'][] = [
+    dq_starterkit_page_jsonld($node),
+    'schema_webpage',
+  ];
+}
+
+/**
+ * Builds a Schema.org WebPage JSON-LD render element for a Basic Page node.
+ *
+ * Assembled from the node's fields — title, canonical URL, dates, primary
+ * image (Media reference or plain image field), body summary and any keywords.
+ * Returns a `<script type="application/ld+json">` render element suitable for
+ * the html_head attachment in dq_starterkit_preprocess_node().
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The Basic Page node being rendered.
+ *
+ * @return array
+ *   A renderable html_tag element.
+ */
+function dq_starterkit_page_jsonld($node): array {
+  $dateFormatter = \Drupal::service('date.formatter');
+  $fileUrlGenerator = \Drupal::service('file_url_generator');
+
+  // ISO 8601 dates in the site timezone (e.g. 2026-06-21T14:05:00-04:00).
+  $data = [
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => $node->label(),
+    'url' => $node->toUrl('canonical', ['absolute' => TRUE])->toString(),
+    'datePublished' => $dateFormatter->format($node->getCreatedTime(), 'custom', 'c'),
+    'dateModified' => $dateFormatter->format($node->getChangedTime(), 'custom', 'c'),
+  ];
+
+  // Anchor the page within the overall site.
+  if ($siteName = \Drupal::config('system.site')->get('name')) {
+    $data['isPartOf'] = [
+      '@type' => 'WebSite',
+      'name' => $siteName,
+      'url' => \Drupal\Core\Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString(),
+    ];
+  }
+
+  // Primary image (absolute URL) — prefer the Media reference, fall back to a
+  // plain image field if one exists on the bundle.
+  $imageUrl = NULL;
+  if ($node->hasField('field_media') && !$node->get('field_media')->isEmpty()) {
+    $media = $node->get('field_media')->entity;
+    if ($media && $media->hasField('field_media_image') && !$media->get('field_media_image')->isEmpty()) {
+      if ($file = $media->get('field_media_image')->entity) {
+        $imageUrl = $fileUrlGenerator->generateAbsoluteString($file->getFileUri());
+      }
+    }
+  }
+  if (!$imageUrl && $node->hasField('field_image') && !$node->get('field_image')->isEmpty()) {
+    if ($file = $node->get('field_image')->entity) {
+      $imageUrl = $fileUrlGenerator->generateAbsoluteString($file->getFileUri());
+    }
+  }
+  if ($imageUrl) {
+    $data['primaryImageOfPage'] = ['@type' => 'ImageObject', 'url' => $imageUrl];
+  }
+
+  // Description from the body summary (or a trimmed, tag-stripped body). Drop
+  // <pre> code blocks first so example markup never leaks into the summary.
+  if ($node->hasField('body') && !$node->get('body')->isEmpty()) {
+    $body = $node->get('body')->first();
+    $source = preg_replace('#<pre\b[^>]*>.*?</pre>#is', ' ', $body->summary ?: $body->value);
+    $plain = trim(strip_tags($source));
+    if ($plain !== '') {
+      $data['description'] = \Drupal\Component\Utility\Unicode::truncate($plain, 300, TRUE, TRUE);
+    }
+  }
+
+  // Keywords, only if a keywords field is present on this bundle.
+  if ($node->hasField('field_keywords') && !$node->get('field_keywords')->isEmpty()) {
+    $keywords = [];
+    foreach ($node->get('field_keywords') as $item) {
+      if ($item->entity) {
+        $keywords[] = $item->entity->label();
+      }
+    }
+    if ($keywords) {
+      $data['keywords'] = $keywords;
+    }
+  }
+
+  // JSON_HEX_TAG escapes < and > so the payload can never break out of the
+  // <script> element; slashes stay literal for clean URLs.
+  $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG);
+
+  return [
+    '#type' => 'html_tag',
+    '#tag' => 'script',
+    '#attributes' => ['type' => 'application/ld+json'],
+    '#value' => \Drupal\Core\Render\Markup::create($json),
+  ];
+}

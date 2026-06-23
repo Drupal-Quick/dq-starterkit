@@ -1,0 +1,17 @@
+# Schema for the drupalquick static-export settings.
+#
+# drupal-quick is a drush package, not an installed module, so it cannot provide
+# config schema itself. The generated theme is the one drupalquick-authored
+# extension that stays enabled (and survives `drush dq:cleanup`), so it carries
+# the schema for the drupalquick.static config object that `drush dq:static`
+# writes. This keeps the stored settings schema-aware instead of schemaless.
+drupalquick.static:
+  type: config_object
+  label: 'drupalquick static export settings'
+  mapping:
+    target:
+      type: string
+      label: 'Deploy target (netlify, github, none)'
+    uri:
+      type: uri
+      label: 'Production base URL for absolute links'

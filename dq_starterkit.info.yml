@@ -1,0 +1,21 @@
+name: 'DQ Starterkit'
+type: theme
+base theme: false
+description: 'A custom Drupal theme built with Tailwind CSS v4 and Vite.'
+core_version_requirement: ^10.3 || ^11
+# A concrete version keeps `drupal generate-theme` non-interactive: without it
+# the command prompts to confirm generating from an unversioned source theme.
+version: 1.0.0
+
+libraries:
+  - dq_starterkit/global
+
+regions:
+  header: Header
+  primary_menu: 'Primary Menu'
+  breadcrumb: Breadcrumb
+  highlighted: Highlighted
+  help: Help
+  content: Content
+  sidebar: Sidebar
+  footer: Footer

@@ -1,0 +1,7 @@
+/* Tailwind Design Token Skin: Minimal */
+@theme {
+  --color-primary: #111827;      /* Slate Gray / Dark */
+  --color-secondary: #4b5563;    /* Light Gray */
+  --color-accent: #374151;
+  --font-sans: 'Inter', sans-serif;
+}

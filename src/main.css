@@ -1,0 +1,39 @@
+/* Entry stylesheet — Tailwind v4 CSS-first import.
+ *
+ * Tailwind v4 only processes @theme in this entry file (not in @import-ed
+ * files), so all theme tokens live here. dq:scaffold rewrites the block between
+ * the markers below, layering values in order: these defaults ← the chosen skin
+ * ← any overrides from config.dq.yml's theme_design. `static` forces the tokens
+ * to always emit as CSS variables, even if no utility uses them. */
+@import "tailwindcss";
+
+/* dq:theme:start */
+@theme static {
+  --color-primary: #1f2937;
+  --color-secondary: #4b5563;
+  --color-accent: #374151;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+}
+/* dq:theme:end */
+
+/* Cross-document view transitions: a slight crossfade between page navigations.
+ * Pairs with the Speculation Rules prerendering in html.html.twig. Chromium-only
+ * for now; other browsers just navigate normally. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 75ms;
+  animation-timing-function: ease;
+}
+
+/* Honour users who prefer reduced motion — no transition for them. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

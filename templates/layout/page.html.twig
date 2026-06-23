@@ -1,0 +1,94 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the main page layout.
+ *
+ * Variables:
+ * - page: Keyed array of region content.
+ *   - page.header: Site header with branding.
+ *   - page.primary_menu: Primary navigation.
+ *   - page.breadcrumb: Breadcrumb trail.
+ *   - page.highlighted: Highlighted messages.
+ *   - page.help: Help block.
+ *   - page.content: Main content area.
+ *   - page.sidebar: Sidebar content.
+ *   - page.footer: Footer content.
+ * - has_sidebar: TRUE when the sidebar region is populated.
+ *
+ * Performance notes:
+ * - Offscreen regions (sidebar, footer) use content-visibility:auto so the
+ *   browser skips their render/layout work until they're scrolled near.
+ * - LCP image hints (fetchpriority="high", loading="eager", width/height) live
+ *   in the image-field / responsive-image templates, not here — page regions
+ *   only output already-built markup.
+ *
+ * @see template_preprocess_page()
+ * @ingroup themeable
+ */
+#}
+
+<div class="flex min-h-screen flex-col">
+
+  {# ------------------------------------------------------------------ Header #}
+  <header role="banner">
+    {% if page.header %}
+      <div>{{ page.header }}</div>
+    {% endif %}
+
+    {% if page.primary_menu %}
+      <nav role="navigation" aria-label="{{ 'Primary navigation'|t }}">
+        {{ page.primary_menu }}
+      </nav>
+    {% endif %}
+  </header>
+
+  {# --------------------------------------------------------------- Main area #}
+  <main id="main-content" role="main" class="flex flex-1">
+
+    <div class="{{ has_sidebar ? 'flex w-full gap-6' : 'w-full' }}">
+
+      {# ------------------------------------------------------------ Content #}
+      <div class="{{ has_sidebar ? 'flex-1 min-w-0' : 'w-full' }}">
+        {% if page.breadcrumb %}
+          <nav aria-label="{{ 'Breadcrumb'|t }}">
+            {{ page.breadcrumb }}
+          </nav>
+        {% endif %}
+
+        {% if page.highlighted %}
+          <div role="status" aria-live="polite">
+            {{ page.highlighted }}
+          </div>
+        {% endif %}
+
+        {% if page.help %}
+          <aside aria-label="{{ 'Help'|t }}">
+            {{ page.help }}
+          </aside>
+        {% endif %}
+
+        <article>
+          {{ page.content }}
+        </article>
+      </div>
+
+      {# ------------------------------------------------------------ Sidebar #}
+      {% if has_sidebar %}
+        <aside role="complementary" aria-label="{{ 'Sidebar'|t }}"
+               class="[content-visibility:auto] [contain-intrinsic-size:auto_500px]">
+          {{ page.sidebar }}
+        </aside>
+      {% endif %}
+
+    </div>
+  </main>
+
+  {# ------------------------------------------------------------------ Footer #}
+  {% if page.footer %}
+    <footer role="contentinfo"
+            class="[content-visibility:auto] [contain-intrinsic-size:auto_300px]">
+      {{ page.footer }}
+    </footer>
+  {% endif %}
+
+</div>

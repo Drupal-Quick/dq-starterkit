@@ -1,0 +1,52 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a menu.
+ *
+ * Variables:
+ * - menu_name: The machine name of the menu.
+ * - items: A nested list of menu items. Each menu item contains:
+ *   - attributes: HTML attributes for the menu item.
+ *   - below: The menu item child items.
+ *   - title: The menu link title.
+ *   - url: The menu link url, instance of \Drupal\Core\Url.
+ *   - localized_options: Menu link localized options.
+ *   - is_expanded: TRUE if the link has visible children within the current
+ *     menu tree.
+ *   - is_collapsed: TRUE if the link has children within the current menu tree
+ *     that are not currently visible.
+ *   - in_active_trail: TRUE if the link is in the active trail.
+ *
+ * @ingroup themeable
+ */
+#}
+{% import _self as menus %}
+
+{#
+  Render a menu item and its children recursively. The `loop` variable from
+  the calling context is not available here, so we track depth via `depth`.
+#}
+{% macro menu_links(items, attributes, depth) %}
+  {% import _self as menus %}
+  {% if items %}
+    <ul{{ depth == 0 ? attributes }}>
+      {% for item in items %}
+        <li{{ item.attributes }}>
+          {% if item.url.isRouted and item.url.routeName == '<nolink>' %}
+            <span>{{ item.title }}</span>
+          {% else %}
+            <a href="{{ item.url }}"
+               {% if item.in_active_trail %}aria-current="page"{% endif %}>
+              {{- item.title -}}
+            </a>
+          {% endif %}
+          {% if item.below %}
+            {{ menus.menu_links(item.below, attributes, depth + 1) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+
+{{ menus.menu_links(items, attributes, 0) }}

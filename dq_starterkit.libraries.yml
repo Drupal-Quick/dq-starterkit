@@ -1,0 +1,10 @@
+global:
+  version: VERSION
+  css:
+    theme:
+      dist/main.css: {}
+  js:
+    dist/main.js: { attributes: { type: module }, minified: true }
+  dependencies:
+    - core/drupal
+    - core/once

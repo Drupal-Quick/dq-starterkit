@@ -1,0 +1,8 @@
+# Marks dq_starterkit as a valid starter kit for
+# `php core/scripts/drupal generate-theme --starterkit dq_starterkit`.
+#
+# This file's presence is what makes the theme generatable. Core applies sane
+# defaults for `ignore`, `no_edit`, and `no_rename` (e.g. it never copies this
+# file or src/StarterKit.php into the generated theme), so no overrides are
+# needed here — an empty info override is enough to produce a valid config.
+info: {}
