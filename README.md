@@ -1,4 +1,4 @@
-# dq_starterkit
+# Drupal-Quick drupal starter kit
 
 A Drupal starterkit theme used by [drupal-quick](https://github.com/Drupal-Quick/drupal-quick). It provides a Tailwind CSS v4 + Vite build pipeline, a set of bundled design skins, and a homepage layout suited to a minimal blog or portfolio site.
 
