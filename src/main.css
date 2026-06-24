@@ -13,6 +13,17 @@
   --color-secondary: #4b5563;
   --color-accent: #374151;
   --font-sans: ui-sans-serif, system-ui, sans-serif;
+
+  /* Reading surface — ink on paper, with a muted tone and hairline rule.
+   * Skin/config-driven (theme_design: paper_color, ink_color, muted_color,
+   * rule_color, font_family, spacing_row). */
+  --color-paper: oklch(0.99 0.002 80);
+  --color-ink: oklch(0.22 0.004 80);
+  --color-muted: oklch(0.55 0.004 80);
+  --color-rule: oklch(0.9 0.003 80);
+
+  /* Vertical rhythm for each article row (py-row). */
+  --spacing-row: 0.5rem;
 }
 /* dq:theme:end */
 
@@ -35,5 +46,56 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+}
+
+/* Global reading surface (token-driven, so a skin/config can recolour it). */
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+}
+
+/* Primary navigation: a static left column on desktop; a slide-out drawer on
+ * phones. Motion is pure CSS — main.js only flips data-open / aria-expanded. */
+@media (max-width: 767px) {
+  .primary-nav {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 40;
+    width: 14rem;
+    max-width: 80vw;
+    padding: 4rem 1.5rem;
+    text-align: start;
+    background-color: var(--color-paper);
+    border-inline-end: 1px solid var(--color-rule);
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+  }
+  .primary-nav[data-open="true"] {
+    transform: translateX(0);
+  }
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background-color: color-mix(in oklch, var(--color-ink) 35%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+  .menu-backdrop[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-nav,
+  .menu-backdrop {
+    transition: none;
   }
 }

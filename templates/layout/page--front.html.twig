@@ -1,18 +1,16 @@
 {#
 /**
  * @file
- * Main page layout: a centered column with the primary menu on the left and
- * content on the right. On phone widths the left menu becomes a slide-out
- * drawer (toggled by the button below; behaviour in src/main.js, styles in
- * src/main.css). The header region is rendered untouched for later design.
+ * Front-page layout. Same two-column shell as page.html.twig, trimmed of
+ * breadcrumb/help so the homepage is just the menu and the article index
+ * (the "writing" view, served as the site front page). The article list and
+ * its ItemList JSON-LD are built in the view template + blog.theme.inc.
  *
- * @see template_preprocess_page()
  * @ingroup themeable
  */
 #}
 <div class="min-h-screen">
 
-  {# Header region — left as-is, to be designed later. #}
   {% if page.header %}
     <header role="banner">{{ page.header }}</header>
   {% endif %}
@@ -37,11 +35,6 @@
     {% endif %}
 
     <main id="main-content" role="main" class="min-w-0 flex-1">
-      {% if page.breadcrumb %}{{ page.breadcrumb }}{% endif %}
-      {% if page.highlighted %}
-        <div role="status" aria-live="polite">{{ page.highlighted }}</div>
-      {% endif %}
-      {% if page.help %}{{ page.help }}{% endif %}
       {{ page.content }}
     </main>
 

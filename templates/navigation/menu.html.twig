@@ -1,47 +1,36 @@
 {#
 /**
  * @file
- * Default theme implementation for a menu.
- *
- * Variables:
- * - menu_name: The machine name of the menu.
- * - items: A nested list of menu items. Each menu item contains:
- *   - attributes: HTML attributes for the menu item.
- *   - below: The menu item child items.
- *   - title: The menu link title.
- *   - url: The menu link url, instance of \Drupal\Core\Url.
- *   - localized_options: Menu link localized options.
- *   - is_expanded: TRUE if the link has visible children within the current
- *     menu tree.
- *   - is_collapsed: TRUE if the link has children within the current menu tree
- *     that are not currently visible.
- *   - in_active_trail: TRUE if the link is in the active trail.
+ * Menu — rendered as a vertical, right-aligned list (the primary site nav).
+ * Active link uses ink + semibold; the rest are muted with a hover transition.
+ * The top-level list carries schema.org SiteNavigationElement.
  *
  * @ingroup themeable
  */
 #}
 {% import _self as menus %}
 
-{#
-  Render a menu item and its children recursively. The `loop` variable from
-  the calling context is not available here, so we track depth via `depth`.
-#}
-{% macro menu_links(items, attributes, depth) %}
+{% macro menu_links(items, depth) %}
   {% import _self as menus %}
   {% if items %}
-    <ul{{ depth == 0 ? attributes }}>
+    {% if depth == 0 %}
+      <ul class="flex flex-col gap-2 text-right text-base" itemscope itemtype="https://schema.org/SiteNavigationElement">
+    {% else %}
+      <ul class="mt-2 flex flex-col gap-1 text-right text-sm">
+    {% endif %}
       {% for item in items %}
-        <li{{ item.attributes }}>
+        <li>
           {% if item.url.isRouted and item.url.routeName == '<nolink>' %}
             <span>{{ item.title }}</span>
           {% else %}
-            <a href="{{ item.url }}"
+            <a href="{{ item.url }}" itemprop="url"
+               class="transition-colors {{ item.in_active_trail ? 'font-semibold text-ink' : 'text-muted hover:text-ink' }}"
                {% if item.in_active_trail %}aria-current="page"{% endif %}>
-              {{- item.title -}}
+              <span itemprop="name">{{- item.title -}}</span>
             </a>
           {% endif %}
           {% if item.below %}
-            {{ menus.menu_links(item.below, attributes, depth + 1) }}
+            {{ menus.menu_links(item.below, depth + 1) }}
           {% endif %}
         </li>
       {% endfor %}
@@ -49,4 +38,4 @@
   {% endif %}
 {% endmacro %}
 
-{{ menus.menu_links(items, attributes, 0) }}
+{{ menus.menu_links(items, 0) }}

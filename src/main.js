@@ -1,18 +1,41 @@
 import './main.css';
 
 /**
- * Drupal behaviors are attached via the global Drupal object which core loads
- * before theme scripts. Vite bundles this module; the Drupal object is a
- * runtime global so we reference it via window to avoid ESM import issues.
+ * Theme behaviors. `Drupal` and `once` are runtime globals provided by core
+ * before theme scripts load; referenced via window to avoid ESM import issues.
  */
-(({ behaviors, announce } = window.Drupal ?? {}) => {
+(({ behaviors } = window.Drupal ?? {}) => {
   if (!behaviors) return;
+  const once = window.once;
 
-  behaviors.theme = {
+  /**
+   * Slide-out primary menu on phone widths. Lightest-footprint approach: the
+   * button toggles `data-open` / `aria-expanded`; all motion is CSS transitions
+   * (see src/main.css). No framework, no inline styles.
+   */
+  behaviors.themeMenu = {
     attach(context) {
-      // Place theme-specific DOM interactions here.
-      // `context` is the DOM subtree being processed (may be a partial page
-      // update from AJAX), so always scope queries to it.
+      const toggles = once
+        ? once('theme-menu', '[data-menu-toggle]', context)
+        : [...(context.querySelectorAll?.('[data-menu-toggle]') ?? [])];
+
+      toggles.forEach((btn) => {
+        const nav = document.getElementById(btn.getAttribute('aria-controls'));
+        if (!nav) return;
+        const backdrop = document.querySelector('[data-menu-backdrop]');
+
+        const setOpen = (open) => {
+          btn.setAttribute('aria-expanded', String(open));
+          nav.dataset.open = String(open);
+          if (backdrop) backdrop.dataset.open = String(open);
+        };
+
+        btn.addEventListener('click', () => setOpen(nav.dataset.open !== 'true'));
+        backdrop?.addEventListener('click', () => setOpen(false));
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') setOpen(false);
+        });
+      });
     },
   };
 })();
