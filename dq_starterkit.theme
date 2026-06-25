@@ -1,64 +1,19 @@
 <?php
 
+/**
+ * @file
+ * Theme functions for the starterkit.
+ *
+ * Recipe behaviour (preprocess + Schema.org JSON-LD) now ships as native OOP
+ * #[Hook] methods in per-recipe submodules that dq:scaffold assembles under the
+ * umbrella module (Drupal 11.3+). Because each submodule is its own extension,
+ * multiple recipes can implement the same preprocess hook without conflict — so
+ * the theme no longer needs the closure dispatcher it previously carried. The
+ * functions below are the theme's own presentation hooks; `drupal
+ * generate-theme` rewrites the dq_starterkit machine name throughout.
+ */
+
 declare(strict_types=1);
-
-/**
- * Registration helper — must be defined before the glob loads includes.
- *
- * Recipe-injected .theme.inc files register preprocess closures by calling this
- * helper. When the theme is generated, `drupal generate-theme` rewrites the
- * starterkit's machine name (dq_starterkit) to the new theme's machine name
- * throughout, so this helper ends up named e.g. my_theme_add_preprocessor().
- * Recipe assets are injected by dq:scaffold after generation and carry a
- * STARTERKIT token that dq:scaffold replaces with the same machine name, so the
- * helper and its callers always resolve to the same function.
- *
- * This pattern is aligned with Drupal core's own direction: issue #3266641
- * on drupal.org opened the theme system to PHP callables as preprocess
- * callbacks, and Drupal 11.3+ deprecates magic function-name discovery in
- * favour of explicit callback registration via hook_theme_registry_alter().
- */
-function dq_starterkit_add_preprocessor(string $hook, callable $fn): void {
-  $GLOBALS['_preprocessors']['dq_starterkit'][$hook][] = $fn;
-}
-
-/**
- * Auto-discover and load recipe-injected theme includes.
- *
- * Only files present here are loaded — nothing lands in includes/ unless
- * the matching recipe was applied during dq:scaffold, so there are no
- * irrelevant functions from recipes that were not chosen.
- */
-foreach (glob(__DIR__ . '/includes/*.theme.inc') as $_include) {
-  require_once $_include;
-}
-
-/**
- * Implements hook_preprocess().
- *
- * A single Drupal hook covers every template, delegating to all callbacks
- * registered for that hook. Two recipe includes can both register for the
- * same hook (e.g. 'page') without any conflict — they are sequential
- * entries in the same array, called in the order recipes were applied.
- */
-function dq_starterkit_preprocess(array &$variables, string $hook): void {
-  // Drupal invokes this generic preprocess with the most specific *registered*
-  // theme hook. For some modules that is a suggestion rather than the base —
-  // notably Views, which registers per-view hooks (e.g.
-  // 'views_view__writing__page_1'). Callbacks register under the base hook
-  // ('views_view', 'node', 'page'), so when a suggestion hook (containing '__')
-  // fires, also dispatch the base hook — otherwise those registrations would
-  // silently never run.
-  $hooks = [$hook];
-  if (($pos = strpos($hook, '__')) !== FALSE) {
-    $hooks[] = substr($hook, 0, $pos);
-  }
-  foreach ($hooks as $candidate) {
-    foreach ($GLOBALS['_preprocessors']['dq_starterkit'][$candidate] ?? [] as $fn) {
-      $fn($variables, $hook);
-    }
-  }
-}
 
 /**
  * Implements hook_page_attachments_alter().
