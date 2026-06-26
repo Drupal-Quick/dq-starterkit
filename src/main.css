@@ -1,31 +1,26 @@
 /* Entry stylesheet — Tailwind v4 CSS-first import.
  *
  * Tailwind v4 only processes @theme in this entry file (not in @import-ed
- * files), so all theme tokens live here. dq:scaffold rewrites the block between
- * the markers below, layering values in order: these defaults ← the chosen skin
- * ← any overrides from config.dq.yml's theme_design. `static` forces the tokens
- * to always emit as CSS variables, even if no utility uses them. */
+ * files), so all theme tokens live here. The dq:preset block below is MANAGED
+ * by `npm run preset <name>` (and by dq:scaffold at build time) — it holds the
+ * active preset's tokens, layered with any overrides from presets/overrides.css.
+ * Don't hand-edit it; edit presets/ and re-run. `static` forces the tokens to
+ * always emit as CSS variables, even if no utility uses them. */
 @import "tailwindcss";
 
-/* dq:theme:start */
+/* dq:preset:start — managed by `npm run preset`; edit presets/, not here */
 @theme static {
-  --color-primary: #1f2937;
+  --color-primary: #111827;
   --color-secondary: #4b5563;
   --color-accent: #374151;
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
-
-  /* Reading surface — ink on paper, with a muted tone and hairline rule.
-   * Skin/config-driven (theme_design: paper_color, ink_color, muted_color,
-   * rule_color, font_family, spacing_row). */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --color-paper: oklch(0.99 0.002 80);
   --color-ink: oklch(0.22 0.004 80);
   --color-muted: oklch(0.55 0.004 80);
   --color-rule: oklch(0.9 0.003 80);
-
-  /* Vertical rhythm for each article row (py-row). */
   --spacing-row: 0.5rem;
 }
-/* dq:theme:end */
+/* dq:preset:end */
 
 /* Cross-document view transitions: a slight crossfade between page navigations.
  * Pairs with the Speculation Rules prerendering in html.html.twig. Chromium-only

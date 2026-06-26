@@ -1,3 +1,5 @@
 node_modules/
 dist/
 .vite-dev
+package-lock.json
+presets/overrides.css
