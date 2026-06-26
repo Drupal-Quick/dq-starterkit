@@ -3,3 +3,4 @@ dist/
 .vite-dev
 package-lock.json
 presets/overrides.css
+src/fonts/

@@ -12,7 +12,8 @@
     "defaultPreset": "minimal",
     "presets": [
       "minimal",
-      "corporate"
+      "corporate",
+      "geometric"
     ]
   },
   "devDependencies": {
