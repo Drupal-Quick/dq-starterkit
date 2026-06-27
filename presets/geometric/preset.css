@@ -1,0 +1,19 @@
+/* Preset: Geometric — Geom (self-hosted) with an indigo/pink accent.
+ *
+ * Directory form: this preset.css holds the @theme tokens, extra.css holds the
+ * @font-face, and fonts/ holds the self-hosted woff2. `npm run preset geometric`
+ * copies fonts/ into src/fonts/ and injects extra.css, so no external font
+ * request is needed (good for the static export). */
+@theme static {
+  --color-primary: #0f172a;
+  --color-secondary: #6366f1;
+  --color-accent: #ec4899;
+  --font-sans: 'Geom', ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: oklch(0.99 0.002 80);
+  --color-ink: oklch(0.22 0.004 80);
+  --color-muted: oklch(0.55 0.004 80);
+  --color-rule: oklch(0.9 0.003 80);
+
+  --spacing-row: 0.5rem;
+}

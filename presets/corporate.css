@@ -1,0 +1,17 @@
+/* Preset: Corporate — deep blue + teal, business-forward.
+ *
+ * A complete token set (see presets/minimal.css for the authoring notes). */
+@theme static {
+  --color-primary: #1e3a8a;
+  --color-secondary: #0d9488;
+  --color-accent: #f59e0b;
+  --font-sans: 'Helvetica Neue', Arial, sans-serif;
+
+  /* Reading surface. */
+  --color-paper: oklch(0.99 0.002 80);
+  --color-ink: oklch(0.22 0.004 80);
+  --color-muted: oklch(0.55 0.004 80);
+  --color-rule: oklch(0.9 0.003 80);
+
+  --spacing-row: 0.5rem;
+}

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { writeFileSync, unlinkSync, existsSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, basename } from 'path';
 
 const MARKER_FILE = resolve(import.meta.dirname, '.vite-dev');
 const PORT = 5173;
@@ -38,7 +38,17 @@ function viteDevMarker() {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // The built CSS is inlined into the page (preprocess_html), so any asset URL
+  // inside it — e.g. a preset's self-hosted @font-face — must be absolute from
+  // the web root; a root-relative '/asset.woff2' or a './asset.woff2' won't
+  // resolve once inlined. For production builds, point base at the theme's dist
+  // path so those URLs are correct. (Assumes a root install; a Drupal install in
+  // a subdirectory would need that base path prepended.) Dev/HMR keeps base '/'.
+  base: command === 'build'
+    ? `/themes/custom/${basename(import.meta.dirname)}/dist/`
+    : '/',
+
   plugins: [
     tailwindcss(),
     viteDevMarker(),
@@ -76,4 +86,4 @@ export default defineConfig({
       ? { hmr: { protocol: 'wss', host: ddevHost, clientPort: PORT } }
       : {}),
   },
-});
+}));

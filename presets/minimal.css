@@ -1,0 +1,21 @@
+/* Preset: Minimal — restrained editorial defaults (the fallback preset).
+ *
+ * A preset is a COMPLETE set of design tokens. `npm run preset minimal` copies
+ * these into the dq:preset block of src/main.css, then rebuilds. To make your
+ * own, copy this file to presets/<name>.css and edit. For fonts or extra CSS,
+ * use the directory form: presets/<name>/preset.css (+ fonts/, + extra.css). */
+@theme static {
+  --color-primary: #111827;
+  --color-secondary: #4b5563;
+  --color-accent: #374151;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Reading surface — ink on paper, with a muted tone and hairline rule. */
+  --color-paper: oklch(0.99 0.002 80);
+  --color-ink: oklch(0.22 0.004 80);
+  --color-muted: oklch(0.55 0.004 80);
+  --color-rule: oklch(0.9 0.003 80);
+
+  /* Vertical rhythm for each article row (py-row). */
+  --spacing-row: 0.5rem;
+}
