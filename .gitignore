@@ -4,3 +4,4 @@ dist/
 package-lock.json
 presets/overrides.css
 src/fonts/
+.DS_Store

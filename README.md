@@ -1,6 +1,6 @@
-# Drupal-Quick drupal starter kit
+# Quick — Drupal starter kit
 
-A Drupal starterkit theme used by [drupal-quick](https://github.com/Drupal-Quick/drupal-quick). It provides a Tailwind CSS v4 + Vite build pipeline, a set of bundled design skins, and a homepage layout suited to a minimal blog or portfolio site.
+A Drupal starterkit theme used by [Quick](https://github.com/Drupal-Quick/drupal-quick). It provides a Tailwind CSS v4 + Vite build pipeline, a set of bundled design skins, and a homepage layout suited to a minimal blog or portfolio site.
 
 It is not meant to be used directly. The `drush dq:scaffold` command generates a real theme from it via `drupal generate-theme`, then layers in a skin and any recipe theme-assets on top.
 
