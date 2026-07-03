@@ -1,0 +1,14 @@
+{
+  "_comment": "Self-hosted webfonts for the geometric preset, pulled on demand by `npm run preset geometric` — not committed. Each entry is downloaded from its pinned Google Fonts (gstatic) URL into src/fonts/ and verified against sha256, and the @font-face is generated from these fields. To pin a different font/subset/weight, grab the woff2 URL + hash from https://gwfh.mranftl.com (google-webfonts-helper).",
+  "fonts": [
+    {
+      "family": "Geom",
+      "weight": 400,
+      "style": "normal",
+      "display": "swap",
+      "file": "Geom-latin.woff2",
+      "url": "https://fonts.gstatic.com/s/geom/v1/X7n_4bw6Cf6j2N-_7PYnX8v0Ggg5rG50niA.woff2",
+      "sha256": "ae1748bec04bf4e070fa44d5a51af11f6d1565f1b46fdb2075e690a9baa8dfd0"
+    }
+  ]
+}

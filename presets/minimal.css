@@ -2,8 +2,9 @@
  *
  * A preset is a COMPLETE set of design tokens. `npm run preset minimal` copies
  * these into the dq:preset block of src/main.css, then rebuilds. To make your
- * own, copy this file to presets/<name>.css and edit. For fonts or extra CSS,
- * use the directory form: presets/<name>/preset.css (+ fonts/, + extra.css). */
+ * own, copy this file to presets/<name>.css and edit. For self-hosted fonts,
+ * use the directory form: presets/<name>/preset.css + fonts.json (which pins
+ * each webfont's URL + sha256, fetched on demand into src/fonts/). */
 @theme static {
   --color-primary: #111827;
   --color-secondary: #4b5563;

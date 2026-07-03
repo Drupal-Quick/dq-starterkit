@@ -1,9 +1,10 @@
 /* Preset: Geometric — Geom (self-hosted) with an indigo/pink accent.
  *
- * Directory form: this preset.css holds the @theme tokens, extra.css holds the
- * @font-face, and fonts/ holds the self-hosted woff2. `npm run preset geometric`
- * copies fonts/ into src/fonts/ and injects extra.css, so no external font
- * request is needed (good for the static export). */
+ * Directory form: this preset.css holds the @theme tokens and fonts.json pins
+ * the self-hosted webfont(s). `npm run preset geometric` downloads the woff2
+ * into src/fonts/ (verified, on demand — nothing binary is committed) and
+ * generates the @font-face, so no external font request is made at render time
+ * (good for the static export). */
 @theme static {
   --color-primary: #0f172a;
   --color-secondary: #6366f1;
