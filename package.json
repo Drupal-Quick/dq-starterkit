@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/preset.mjs --sync",
     "build": "vite build",
     "preview": "vite preview",
     "preset": "node scripts/preset.mjs"
