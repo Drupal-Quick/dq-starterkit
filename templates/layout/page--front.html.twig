@@ -1,11 +1,15 @@
 {#
 /**
  * @file
- * Front-page layout. Same two-column shell as page.html.twig, trimmed of
- * breadcrumb/help so the homepage is just the menu and the article index
- * (the "writing" view, served as the site front page). The article list and
- * its ItemList JSON-LD are built in the view template + blog.theme.inc.
+ * Front-page layout. The same two-arrangement shell as page.html.twig
+ * (sidebar | single, via the `layout` theme setting), trimmed of
+ * breadcrumb/help so the homepage is just the navigation and the content
+ * region (the front view or the composed homepage blocks).
  *
+ * NOTE: this repeats page.html.twig's two-arrangement shell — keep the two in
+ * step; extract a shared include if the shell grows any further.
+ *
+ * @see page.html.twig
  * @ingroup themeable
  */
 #}
@@ -15,30 +19,58 @@
     <header role="banner">{{ page.header }}</header>
   {% endif %}
 
-  {% if page.primary_menu %}
-    <button type="button" data-menu-toggle aria-controls="primary-nav" aria-expanded="false"
-            class="menu-toggle fixed left-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded md:hidden">
-      <span class="sr-only">{{ 'Toggle menu'|t }}</span>
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
-      </svg>
-    </button>
-    <div data-menu-backdrop class="menu-backdrop md:hidden"></div>
-  {% endif %}
+  {% if dq_layout == 'single' %}
 
-  <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
+    <div class="mx-auto max-w-4xl px-6 pt-10 pb-24">
+
+      <header class="flex flex-wrap items-baseline gap-x-8 gap-y-2 pb-12">
+        <a href="{{ path('<front>') }}" rel="home" class="font-semibold text-ink">{{ site_name }}</a>
+        {% if page.primary_menu %}
+          <nav id="primary-nav" aria-label="{{ 'Primary'|t }}"
+               class="min-w-0 [&_ul]:flex-row [&_ul]:flex-wrap [&_ul]:gap-x-5 [&_ul]:text-left">
+            {{ page.primary_menu }}
+          </nav>
+        {% endif %}
+      </header>
+
+      <main id="main-content" role="main">
+        {{ page.content }}
+      </main>
+
+    </div>
+
+  {% else %}
 
     {% if page.primary_menu %}
-      <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav w-24 shrink-0">
-        {{ page.primary_menu }}
-      </nav>
+      <button type="button" data-menu-toggle aria-controls="primary-nav" aria-expanded="false"
+              class="menu-toggle fixed left-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded md:hidden">
+        <span class="sr-only">{{ 'Toggle menu'|t }}</span>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div data-menu-backdrop class="menu-backdrop md:hidden"></div>
     {% endif %}
 
-    <main id="main-content" role="main" class="min-w-0 flex-1">
-      {{ page.content }}
-    </main>
+    <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
 
-  </div>
+      <div class="w-24 shrink-0">
+        <a href="{{ path('<front>') }}" rel="home"
+           class="mb-6 hidden text-right font-semibold text-ink md:block">{{ site_name }}</a>
+        {% if page.primary_menu %}
+          <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav">
+            {{ page.primary_menu }}
+          </nav>
+        {% endif %}
+      </div>
+
+      <main id="main-content" role="main" class="min-w-0 flex-1">
+        {{ page.content }}
+      </main>
+
+    </div>
+
+  {% endif %}
 
   {% if page.footer %}
     <footer role="contentinfo">{{ page.footer }}</footer>

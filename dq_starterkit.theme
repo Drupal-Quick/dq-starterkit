@@ -109,6 +109,14 @@ function dq_starterkit_css_alter(array &$css): void {
  */
 function dq_starterkit_preprocess_page(array &$variables): void {
   $variables['has_sidebar'] = !empty($variables['page']['sidebar']);
+
+  // Page-shell arrangement: 'sidebar' (left nav column, the default) or
+  // 'single' (top bar, horizontal nav). Set by dq:scaffold from config.dq.yml's
+  // theme.layout; both arrangements' styles are always compiled, so flipping
+  // the setting later (drush config:set <theme>.settings layout single) needs
+  // no rebuild — just a cache rebuild.
+  $variables['dq_layout'] = theme_get_setting('layout') ?: 'sidebar';
+  $variables['site_name'] = \Drupal::config('system.site')->get('name');
 }
 
 /**

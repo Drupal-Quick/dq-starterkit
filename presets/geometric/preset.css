@@ -16,5 +16,13 @@
   --color-muted: oklch(0.55 0.004 80);
   --color-rule: oklch(0.9 0.003 80);
 
-  --spacing-row: 0.5rem;
+  --spacing-row: 0.75rem;
+
+  /* Content-scale contract (see presets/minimal.css). Airy and larger — the
+   * showcase that scale/negative-space flow through to every recipe template. */
+  --text-title: 1.125rem;
+  --text-title--line-height: 1.75rem;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.25rem;
+  --spacing-flow: 2rem;
 }

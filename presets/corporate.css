@@ -14,4 +14,11 @@
   --color-rule: oklch(0.9 0.003 80);
 
   --spacing-row: 0.5rem;
+
+  /* Content-scale contract (see presets/minimal.css). Dense, businesslike. */
+  --text-title: 1rem;
+  --text-title--line-height: 1.5rem;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.25rem;
+  --spacing-flow: 1.25rem;
 }
