@@ -1,102 +1,22 @@
 {#
 /**
  * @file
- * Main page layout, in two user-selectable arrangements (theme setting
- * `layout`, seeded by dq:scaffold from config.dq.yml's theme.layout;
- * `dq_layout` + `site_name` come from the theme's preprocess_page):
- *
- *  - sidebar (default): centered two-column shell — site title atop a vertical
- *    primary menu in a left column (slide-out drawer on phones, behaviour in
- *    src/main.js, styles in src/main.css), content on the right.
- *  - single: one centered column with the site title and a horizontal,
- *    wrapping primary menu along the top.
- *
- * Both arrangements' classes are compiled into the stylesheet (Tailwind builds
- * at compile time), so switching the setting requires no rebuild. The header
- * region is rendered untouched for later design.
- *
- * NOTE: page--front.html.twig repeats this two-arrangement shell (trimmed of
- * breadcrumb/help). Keep the two in step; extract a shared include if the
- * shell grows any further.
+ * Main page layout — embeds the page shell
+ * (templates/includes/page-shell.html.twig; the arrangement baked there at
+ * scaffold time) and supplies the interior-page main content: breadcrumb,
+ * status, help, then the content region.
  *
  * @see template_preprocess_page()
  * @ingroup themeable
  */
 #}
-<div class="min-h-screen">
-
-  {# Header region — left as-is, to be designed later. #}
-  {% if page.header %}
-    <header role="banner">{{ page.header }}</header>
-  {% endif %}
-
-  {% if dq_layout == 'single' %}
-
-    <div class="mx-auto max-w-4xl px-6 pt-10 pb-24">
-
-      <header class="flex flex-wrap items-baseline gap-x-8 gap-y-2 pb-12">
-        <a href="{{ path('<front>') }}" rel="home" class="font-semibold text-ink">{{ site_name }}</a>
-        {% if page.primary_menu %}
-          {# Child-selector utilities lay the menu's lists out horizontally —
-             the menu template itself stays layout-agnostic. #}
-          <nav id="primary-nav" aria-label="{{ 'Primary'|t }}"
-               class="min-w-0 [&_ul]:flex-row [&_ul]:flex-wrap [&_ul]:gap-x-5 [&_ul]:text-left">
-            {{ page.primary_menu }}
-          </nav>
-        {% endif %}
-      </header>
-
-      <main id="main-content" role="main">
-        {% if page.breadcrumb %}{{ page.breadcrumb }}{% endif %}
-        {% if page.highlighted %}
-          <div role="status" aria-live="polite">{{ page.highlighted }}</div>
-        {% endif %}
-        {% if page.help %}{{ page.help }}{% endif %}
-        {{ page.content }}
-      </main>
-
-    </div>
-
-  {% else %}
-
-    {% if page.primary_menu %}
-      <button type="button" data-menu-toggle aria-controls="primary-nav" aria-expanded="false"
-              class="menu-toggle fixed left-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded md:hidden">
-        <span class="sr-only">{{ 'Toggle menu'|t }}</span>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <div data-menu-backdrop class="menu-backdrop md:hidden"></div>
+{% embed '@dq_starterkit/includes/page-shell.html.twig' %}
+  {% block main %}
+    {% if page.breadcrumb %}{{ page.breadcrumb }}{% endif %}
+    {% if page.highlighted %}
+      <div role="status" aria-live="polite">{{ page.highlighted }}</div>
     {% endif %}
-
-    <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
-
-      <div class="w-24 shrink-0">
-        <a href="{{ path('<front>') }}" rel="home"
-           class="mb-6 hidden text-right font-semibold text-ink md:block">{{ site_name }}</a>
-        {% if page.primary_menu %}
-          <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav">
-            {{ page.primary_menu }}
-          </nav>
-        {% endif %}
-      </div>
-
-      <main id="main-content" role="main" class="min-w-0 flex-1">
-        {% if page.breadcrumb %}{{ page.breadcrumb }}{% endif %}
-        {% if page.highlighted %}
-          <div role="status" aria-live="polite">{{ page.highlighted }}</div>
-        {% endif %}
-        {% if page.help %}{{ page.help }}{% endif %}
-        {{ page.content }}
-      </main>
-
-    </div>
-
-  {% endif %}
-
-  {% if page.footer %}
-    <footer role="contentinfo">{{ page.footer }}</footer>
-  {% endif %}
-
-</div>
+    {% if page.help %}{{ page.help }}{% endif %}
+    {{ page.content }}
+  {% endblock %}
+{% endembed %}
