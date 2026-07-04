@@ -109,6 +109,9 @@ function dq_starterkit_css_alter(array &$css): void {
  */
 function dq_starterkit_preprocess_page(array &$variables): void {
   $variables['has_sidebar'] = !empty($variables['page']['sidebar']);
+
+  // Site title link in the page shell (templates/includes/page-shell*.twig).
+  $variables['site_name'] = \Drupal::config('system.site')->get('name');
 }
 
 /**

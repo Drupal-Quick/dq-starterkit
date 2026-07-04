@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Page shell — the single-column arrangement: one centered column with the
+ * site title and a horizontal, wrapping primary menu along the top. No mobile
+ * drawer — the menu simply wraps on narrow screens.
+ *
+ * A scaffold-time alternative to page-shell.html.twig (see that file for how
+ * dq:scaffold bakes the chosen variant). Same embed contract: page templates
+ * supply the `main` block.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="min-h-screen">
+
+  {# Header region — left as-is, to be designed later. #}
+  {% if page.header %}
+    <header role="banner">{{ page.header }}</header>
+  {% endif %}
+
+  <div class="mx-auto max-w-4xl px-6 pt-10 pb-24">
+
+    <header class="flex flex-wrap items-baseline gap-x-8 gap-y-2 pb-12">
+      <a href="{{ path('<front>') }}" rel="home" class="font-semibold text-ink">{{ site_name }}</a>
+      {% if page.primary_menu %}
+        {# Child-selector utilities lay the menu's lists out horizontally —
+           the menu template itself stays layout-agnostic. #}
+        <nav id="primary-nav" aria-label="{{ 'Primary'|t }}"
+             class="min-w-0 [&_ul]:flex-row [&_ul]:flex-wrap [&_ul]:gap-x-5 [&_ul]:text-left">
+          {{ page.primary_menu }}
+        </nav>
+      {% endif %}
+    </header>
+
+    <main id="main-content" role="main">
+      {% block main %}{{ page.content }}{% endblock %}
+    </main>
+
+  </div>
+
+  {% if page.footer %}
+    <footer role="contentinfo">{{ page.footer }}</footer>
+  {% endif %}
+
+</div>

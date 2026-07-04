@@ -1,54 +1,22 @@
 {#
 /**
  * @file
- * Main page layout: a centered column with the primary menu on the left and
- * content on the right. On phone widths the left menu becomes a slide-out
- * drawer (toggled by the button below; behaviour in src/main.js, styles in
- * src/main.css). The header region is rendered untouched for later design.
+ * Main page layout — embeds the page shell
+ * (templates/includes/page-shell.html.twig; the arrangement baked there at
+ * scaffold time) and supplies the interior-page main content: breadcrumb,
+ * status, help, then the content region.
  *
  * @see template_preprocess_page()
  * @ingroup themeable
  */
 #}
-<div class="min-h-screen">
-
-  {# Header region — left as-is, to be designed later. #}
-  {% if page.header %}
-    <header role="banner">{{ page.header }}</header>
-  {% endif %}
-
-  {% if page.primary_menu %}
-    <button type="button" data-menu-toggle aria-controls="primary-nav" aria-expanded="false"
-            class="menu-toggle fixed left-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded md:hidden">
-      <span class="sr-only">{{ 'Toggle menu'|t }}</span>
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
-      </svg>
-    </button>
-    <div data-menu-backdrop class="menu-backdrop md:hidden"></div>
-  {% endif %}
-
-  <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
-
-    {% if page.primary_menu %}
-      <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav w-24 shrink-0">
-        {{ page.primary_menu }}
-      </nav>
+{% embed '@dq_starterkit/includes/page-shell.html.twig' %}
+  {% block main %}
+    {% if page.breadcrumb %}{{ page.breadcrumb }}{% endif %}
+    {% if page.highlighted %}
+      <div role="status" aria-live="polite">{{ page.highlighted }}</div>
     {% endif %}
-
-    <main id="main-content" role="main" class="min-w-0 flex-1">
-      {% if page.breadcrumb %}{{ page.breadcrumb }}{% endif %}
-      {% if page.highlighted %}
-        <div role="status" aria-live="polite">{{ page.highlighted }}</div>
-      {% endif %}
-      {% if page.help %}{{ page.help }}{% endif %}
-      {{ page.content }}
-    </main>
-
-  </div>
-
-  {% if page.footer %}
-    <footer role="contentinfo">{{ page.footer }}</footer>
-  {% endif %}
-
-</div>
+    {% if page.help %}{{ page.help }}{% endif %}
+    {{ page.content }}
+  {% endblock %}
+{% endembed %}

@@ -1,0 +1,62 @@
+{#
+/**
+ * @file
+ * Page shell — the sidebar arrangement (the default): a centered two-column
+ * layout with the site title atop a vertical primary menu in a left column
+ * (slide-out drawer on phones; behaviour in src/main.js, styles in
+ * src/main.css) and content on the right.
+ *
+ * Both page templates embed this file and supply the `main` block. The layout
+ * is chosen once, at scaffold time (config.dq.yml theme.layout): dq:scaffold
+ * replaces this file with the chosen page-shell--<layout>.html.twig variant
+ * and removes the others. After that this is ordinary Twig — edit it directly
+ * to change the site's shell. Not a theme-hook template (it lives under
+ * templates/includes/ and is only reached through the embeds).
+ *
+ * `site_name` comes from the theme's preprocess_page. The header region is
+ * rendered untouched for later design.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="min-h-screen">
+
+  {# Header region — left as-is, to be designed later. #}
+  {% if page.header %}
+    <header role="banner">{{ page.header }}</header>
+  {% endif %}
+
+  {% if page.primary_menu %}
+    <button type="button" data-menu-toggle aria-controls="primary-nav" aria-expanded="false"
+            class="menu-toggle fixed left-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded md:hidden">
+      <span class="sr-only">{{ 'Toggle menu'|t }}</span>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div data-menu-backdrop class="menu-backdrop md:hidden"></div>
+  {% endif %}
+
+  <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
+
+    <div class="w-24 shrink-0">
+      <a href="{{ path('<front>') }}" rel="home"
+         class="mb-6 hidden text-right font-semibold text-ink md:block">{{ site_name }}</a>
+      {% if page.primary_menu %}
+        <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav">
+          {{ page.primary_menu }}
+        </nav>
+      {% endif %}
+    </div>
+
+    <main id="main-content" role="main" class="min-w-0 flex-1">
+      {% block main %}{{ page.content }}{% endblock %}
+    </main>
+
+  </div>
+
+  {% if page.footer %}
+    <footer role="contentinfo">{{ page.footer }}</footer>
+  {% endif %}
+
+</div>

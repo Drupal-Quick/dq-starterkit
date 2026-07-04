@@ -1,47 +1,17 @@
 {#
 /**
  * @file
- * Front-page layout. Same two-column shell as page.html.twig, trimmed of
- * breadcrumb/help so the homepage is just the menu and the article index
- * (the "writing" view, served as the site front page). The article list and
- * its ItemList JSON-LD are built in the view template + blog.theme.inc.
+ * Front-page layout — embeds the page shell
+ * (templates/includes/page-shell.html.twig) trimmed to just the content
+ * region, so the homepage is only the navigation plus the front view or the
+ * composed homepage blocks.
  *
+ * @see page.html.twig
  * @ingroup themeable
  */
 #}
-<div class="min-h-screen">
-
-  {% if page.header %}
-    <header role="banner">{{ page.header }}</header>
-  {% endif %}
-
-  {% if page.primary_menu %}
-    <button type="button" data-menu-toggle aria-controls="primary-nav" aria-expanded="false"
-            class="menu-toggle fixed left-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded md:hidden">
-      <span class="sr-only">{{ 'Toggle menu'|t }}</span>
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <path d="M3 5h14M3 10h14M3 15h14" stroke-linecap="round"/>
-      </svg>
-    </button>
-    <div data-menu-backdrop class="menu-backdrop md:hidden"></div>
-  {% endif %}
-
-  <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
-
-    {% if page.primary_menu %}
-      <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav w-24 shrink-0">
-        {{ page.primary_menu }}
-      </nav>
-    {% endif %}
-
-    <main id="main-content" role="main" class="min-w-0 flex-1">
-      {{ page.content }}
-    </main>
-
-  </div>
-
-  {% if page.footer %}
-    <footer role="contentinfo">{{ page.footer }}</footer>
-  {% endif %}
-
-</div>
+{% embed '@dq_starterkit/includes/page-shell.html.twig' %}
+  {% block main %}
+    {{ page.content }}
+  {% endblock %}
+{% endembed %}
