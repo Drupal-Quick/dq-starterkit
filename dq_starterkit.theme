@@ -6,19 +6,18 @@
  *
  * Recipe behaviour (preprocess + Schema.org JSON-LD) now ships as native OOP
  * #[Hook] methods in per-recipe submodules that dq:scaffold assembles under the
- * umbrella module (Drupal 11.1.8+). Because each submodule is its own extension,
- * multiple recipes can implement the same preprocess hook without conflict — so
- * the theme no longer needs the closure dispatcher it previously carried. The
+ * umbrella module. Because each submodule is its own extension, multiple
+ * recipes can implement the same preprocess hook without conflict — so the
+ * theme no longer needs the closure dispatcher it previously carried. The
  * functions below are the theme's own presentation hooks; `drupal
  * generate-theme` rewrites the dq_starterkit machine name throughout.
  *
  * @todo Move these procedural hooks into OOP #[Hook] classes under src/Hook/ for
  *   one consistent idiom with the recipe modules (plus constructor DI). Verified
  *   that `drupal generate-theme` correctly renames the Drupal\dq_starterkit\Hook
- *   namespace in the generated theme and that the hooks fire on 11.3. Deferred
- *   deliberately: theme OOP hooks require Drupal ^11.3, and we keep the stack
- *   floor at ^11.1.8 (procedural theme hooks are fully supported, not
- *   deprecated). Revisit when 11.3 becomes the minimum.
+ *   namespace in the generated theme and that the hooks fire on 11.3. Now
+ *   UNBLOCKED: theme OOP hooks require ^11.3 and the stack floor is ^11.3
+ *   (tested on 11.3 and 11.4) — migrate as a deliberate follow-up.
  */
 
 declare(strict_types=1);

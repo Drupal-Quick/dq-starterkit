@@ -66,8 +66,9 @@ full design in [Quick's `docs/presets.md`](https://github.com/Drupal-Quick/drupa
 # 1. Install the theme
 composer require drupal-quick/dq_starterkit
 
-# 2. Generate a real theme from the starterkit
-php core/scripts/drupal generate-theme my_theme \
+# 2. Generate a real theme from the starterkit (11.4+: use the consolidated
+#    core CLI; on 11.3 use `php web/core/scripts/drupal generate-theme` instead)
+php vendor/bin/dr generate-theme my_theme \
     --starterkit dq_starterkit \
     --path web/themes/custom
 
@@ -77,4 +78,4 @@ cd web/themes/custom/my_theme && npm install && npm run preset
 
 ## Drupal version compatibility
 
-`core_version_requirement: ^11.1.8`
+`core_version_requirement: ^11.3` (Quick is tested on Drupal 11.3 and 11.4)
