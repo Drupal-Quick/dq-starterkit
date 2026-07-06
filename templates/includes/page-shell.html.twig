@@ -40,8 +40,11 @@
   <div class="mx-auto flex max-w-4xl gap-12 px-6 pt-16 pb-24">
 
     <div class="w-24 shrink-0">
+      {# max-md:hidden, not `hidden md:block`: Drupal core's system.module.css
+         also defines .hidden and loads after the inlined theme CSS, so the
+         bare utility keeps display:none at every width. #}
       <a href="{{ path('<front>') }}" rel="home"
-         class="mb-6 hidden text-right font-semibold text-ink md:block">{{ site_name }}</a>
+         class="mb-6 text-right font-semibold text-ink max-md:hidden">{{ site_name }}</a>
       {% if page.primary_menu %}
         <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav">
           {{ page.primary_menu }}
