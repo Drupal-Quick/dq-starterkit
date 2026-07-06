@@ -56,6 +56,12 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
   }
+
+  /* Headings honour a preset's display face when it declares one
+   * (--font-display); presets without it fall back to --font-sans. */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display, var(--font-sans));
+  }
 }
 
 /* Primary navigation: a static left column on desktop; a slide-out drawer on
