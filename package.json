@@ -14,7 +14,8 @@
     "presets": [
       "minimal",
       "corporate",
-      "geometric"
+      "geometric",
+      "quick"
     ]
   },
   "devDependencies": {

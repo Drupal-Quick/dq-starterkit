@@ -1,0 +1,39 @@
+/* Preset: Quick — the quickthe.me brand language. Geom (self-hosted) for
+ * display/headings over Inter body copy, Quick's navy ink with a more vibrant
+ * interactive blue, and generous negative space.
+ *
+ * Directory form: this preset.css holds the @theme tokens and fonts.json pins
+ * the self-hosted webfonts. `npm run preset quick` downloads the woff2 files
+ * into src/fonts/ (verified, on demand — nothing binary is committed) and
+ * generates the @font-face rules, so no external font request is made at
+ * render time (good for the static export).
+ *
+ * This preset is the first to declare a display face (the font-display token
+ * below); headings render in it via the base-layer rule in src/main.css.
+ * Presets without one fall back to the sans face there, so they are
+ * unaffected. */
+@theme static {
+  --color-primary: #15224f;
+  --color-secondary: #3056d3;
+  --color-accent: #0ea5e9;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Geom', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: oklch(0.995 0.001 250);
+  --color-ink: oklch(0.25 0.035 265);
+  --color-muted: oklch(0.55 0.02 265);
+  --color-rule: oklch(0.92 0.006 250);
+  /* Soft neutral section background — alternates with paper for banding. */
+  --color-wash: oklch(0.975 0.003 250);
+
+  --spacing-row: 1rem;
+
+  /* Content-scale contract (see presets/minimal.css). The airiest of the
+   * shipped presets — quickthe.me leans on negative space, with headings and
+   * imagery carrying the visual interest. */
+  --text-title: 1.125rem;
+  --text-title--line-height: 1.75rem;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.25rem;
+  --spacing-flow: 2.5rem;
+}

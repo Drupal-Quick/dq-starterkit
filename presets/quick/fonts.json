@@ -1,0 +1,32 @@
+{
+  "_comment": "Self-hosted webfonts for the quick preset, pulled on demand by `npm run preset quick` — not committed. Each entry is downloaded from its pinned Google Fonts (gstatic) URL into src/fonts/ and verified against sha256, and the @font-face is generated from these fields. To pin a different font/subset/weight, grab the woff2 URL + hash from https://gwfh.mranftl.com (google-webfonts-helper).",
+  "fonts": [
+    {
+      "family": "Geom",
+      "weight": 400,
+      "style": "normal",
+      "display": "swap",
+      "file": "Geom-latin.woff2",
+      "url": "https://fonts.gstatic.com/s/geom/v1/X7n_4bw6Cf6j2N-_7PYnX8v0Ggg5rG50niA.woff2",
+      "sha256": "ae1748bec04bf4e070fa44d5a51af11f6d1565f1b46fdb2075e690a9baa8dfd0"
+    },
+    {
+      "family": "Inter",
+      "weight": 400,
+      "style": "normal",
+      "display": "swap",
+      "file": "Inter-400-latin.woff2",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2",
+      "sha256": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc"
+    },
+    {
+      "family": "Inter",
+      "weight": 600,
+      "style": "normal",
+      "display": "swap",
+      "file": "Inter-600-latin.woff2",
+      "url": "https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiA.woff2",
+      "sha256": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a"
+    }
+  ]
+}
