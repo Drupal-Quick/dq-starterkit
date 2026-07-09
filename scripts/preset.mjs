@@ -173,9 +173,13 @@ function fontFace(font) {
 /** Builds a <link rel="preload"> tag for a font manifest entry. Points at
  * dist/ (Vite's build output), which is what the browser actually fetches —
  * unlike the @font-face src in src/main.css, this line isn't rewritten by
- * the build, so it must already reference the served path. */
+ * the build, so it must already reference the served path. A literal leading
+ * slash, not `{{ base_path }}`: html.html.twig renders before Drupal's
+ * preprocessPage() runs, so `base_path` is empty in this template's scope
+ * (unlike page/component templates, where it's already set by the time they
+ * render) — every other asset reference in the export is root-relative too. */
 function preloadLink(font) {
-  return `<link rel="preload" href="{{ base_path ~ directory }}/dist/${font.file}" as="font" type="font/woff2" crossorigin>`;
+  return `<link rel="preload" href="/{{ directory }}/dist/${font.file}" as="font" type="font/woff2" crossorigin>`;
 }
 
 /** Removes any files in src/fonts/ not required by the active preset. */
