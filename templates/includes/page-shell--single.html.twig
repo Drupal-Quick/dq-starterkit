@@ -22,7 +22,14 @@
   <div class="mx-auto max-w-4xl px-6 pt-10 pb-24">
 
     <header class="flex flex-wrap items-baseline gap-x-8 gap-y-2 pb-12">
-      <a href="{{ path('<front>') }}" rel="home" class="font-semibold text-ink">{{ site_name }}</a>
+      {# Not a link on the front page: navigating to the URL you are already
+         on is a reload-class navigation, which skips cross-document view
+         transitions and flashes a plain repaint instead of crossfading. #}
+      {% if is_front %}
+        <span class="font-semibold text-ink">{{ site_name }}</span>
+      {% else %}
+        <a href="{{ path('<front>') }}" rel="home" class="font-semibold text-ink">{{ site_name }}</a>
+      {% endif %}
       {% if page.primary_menu %}
         {# Child-selector utilities lay the menu's lists out horizontally —
            the menu template itself stays layout-agnostic. #}
