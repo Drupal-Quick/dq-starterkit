@@ -43,8 +43,15 @@
       {# max-md:hidden, not `hidden md:block`: Drupal core's system.module.css
          also defines .hidden and loads after the inlined theme CSS, so the
          bare utility keeps display:none at every width. #}
-      <a href="{{ path('<front>') }}" rel="home"
-         class="mb-6 text-right font-semibold text-ink max-md:hidden">{{ site_name }}</a>
+      {# Not a link on the front page: navigating to the URL you are already
+         on is a reload-class navigation, which skips cross-document view
+         transitions and flashes a plain repaint instead of crossfading. #}
+      {% if is_front %}
+        <span class="mb-6 text-right font-semibold text-ink max-md:hidden">{{ site_name }}</span>
+      {% else %}
+        <a href="{{ path('<front>') }}" rel="home"
+           class="mb-6 text-right font-semibold text-ink max-md:hidden">{{ site_name }}</a>
+      {% endif %}
       {% if page.primary_menu %}
         <nav id="primary-nav" aria-label="{{ 'Primary'|t }}" class="primary-nav">
           {{ page.primary_menu }}

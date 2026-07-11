@@ -31,10 +31,11 @@
     {#
     <link rel="preconnect" href="https://cdn.example.com" crossorigin>
     #}
-    {# Preload the LCP web font (self-hosted woff2):
-    <link rel="preload" href="/themes/custom/THEME/fonts/inter-var.woff2"
-          as="font" type="font/woff2" crossorigin>
-    #}
+    {# Preload hints for the active preset's self-hosted fonts (if any) — cuts
+       the flash-of-unstyled-text window before font-display: swap can apply.
+       Managed by `npm run preset`; a fontless preset leaves this empty. #}
+    {# dq:preset-preload:start — managed by `npm run preset`; edit presets/, not here #}
+    {# dq:preset-preload:end #}
 
     {# Core/module CSS loads here. #}
     <css-placeholder token="{{ placeholder_token }}">
@@ -75,7 +76,7 @@
       }],
       "prefetch": [{
         "where": { "href_matches": "/*" },
-        "eagerness": "conservative"
+        "eagerness": "eager"
       }]
     }
     </script>

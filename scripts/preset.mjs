@@ -41,6 +41,7 @@ import { execSync } from 'node:child_process';
 const root = process.cwd();
 const presetsDir = join(root, 'presets');
 const mainCssPath = join(root, 'src', 'main.css');
+const htmlTwigPath = join(root, 'templates', 'layout', 'html.html.twig');
 const fontsDir = join(root, 'src', 'fonts');
 const pkgPath = join(root, 'package.json');
 
@@ -125,11 +126,15 @@ function parseTokens(css) {
   return tokens;
 }
 
-/** Replaces a marked block in `css`, or appends via `appendAfter` if absent. */
-function setBlock(css, startMarker, endMarker, body, appendAfter) {
-  const re = new RegExp(`/\\* ${startMarker}[\\s\\S]*?/\\* ${endMarker} \\*/`);
-  if (re.test(css)) return css.replace(re, body);
-  return css.replace(appendAfter, `${appendAfter}\n\n${body}`);
+/** Replaces a marked block in `content`, or appends via `appendAfter` if
+ * absent. `delims` is [open, close] for the marker comment syntax — CSS
+ * block comments by default; pass ['{#', '#}'] for a Twig template. */
+function setBlock(content, startMarker, endMarker, body, appendAfter, delims = ['/*', '*/']) {
+  const [open, close] = delims;
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`${esc(open)} ${startMarker}[\\s\\S]*?${esc(open)} ${endMarker} ${esc(close)}`);
+  if (re.test(content)) return content.replace(re, body);
+  return content.replace(appendAfter, `${appendAfter}\n\n${body}`);
 }
 
 /** Downloads a pinned webfont into src/fonts/ (verified), reusing any cached copy. */
@@ -163,6 +168,18 @@ function fontFace(font) {
     `  src: url('./fonts/${font.file}') format('woff2');`,
     '}',
   ].join('\n');
+}
+
+/** Builds a <link rel="preload"> tag for a font manifest entry. Points at
+ * dist/ (Vite's build output), which is what the browser actually fetches —
+ * unlike the @font-face src in src/main.css, this line isn't rewritten by
+ * the build, so it must already reference the served path. A literal leading
+ * slash, not `{{ base_path }}`: html.html.twig renders before Drupal's
+ * preprocessPage() runs, so `base_path` is empty in this template's scope
+ * (unlike page/component templates, where it's already set by the time they
+ * render) — every other asset reference in the export is root-relative too. */
+function preloadLink(font) {
+  return `<link rel="preload" href="/{{ directory }}/dist/${font.file}" as="font" type="font/woff2" crossorigin>`;
 }
 
 /** Removes any files in src/fonts/ not required by the active preset. */
@@ -228,6 +245,22 @@ async function main() {
   }
 
   writeFileSync(mainCssPath, css);
+
+  // ---- preload hints: cut the flash-of-unstyled-text window ---------------
+  // font-display: swap (above) paints a fallback font immediately then swaps
+  // once the webfont arrives — that swap is the point of `swap`, not a bug,
+  // but browsers don't start fetching a font just because its @font-face
+  // rule was parsed; they wait until they need it for visible text. A
+  // preload starts the fetch immediately instead, shrinking that window.
+  if (existsSync(htmlTwigPath)) {
+    let twig = readFileSync(htmlTwigPath, 'utf8');
+    const preloadBody = fonts.length
+      ? `{# dq:preset-preload:start — managed by \`npm run preset\`; edit presets/, not here #}\n${fonts.map((f) => `    ${preloadLink(f)}`).join('\n')}\n    {# dq:preset-preload:end #}`
+      : '{# dq:preset-preload:start — managed by `npm run preset`; edit presets/, not here #}\n    {# dq:preset-preload:end #}';
+    twig = setBlock(twig, 'dq:preset-preload:start', 'dq:preset-preload:end', preloadBody, "<title>{{ head_title|safe_join(' | ') }}</title>", ['{#', '#}']);
+    writeFileSync(htmlTwigPath, twig);
+  }
+
   if (!sync) setActivePreset(name);
   console.log(`✔ Applied preset "${name}"${hasOverrides ? ' (+ overrides)' : ''}${fonts.length ? ` (+ ${fonts.length} font${fonts.length > 1 ? 's' : ''})` : ''}.`);
 
