@@ -8,8 +8,10 @@ const PORT = 5173;
 
 // Inside DDEV the dev server is reached over the project's HTTPS hostname on the
 // exposed port (see .ddev/config.local.yaml -> web_extra_exposed_ports). DDEV
-// sets DDEV_HOSTNAME (e.g. my-site.ddev.site). Elsewhere fall back to localhost.
-const ddevHost = process.env.DDEV_HOSTNAME;
+// sets DDEV_HOSTNAME (e.g. my-site.ddev.site), or a comma-separated list when
+// the project has additional hostnames (e.g. a static-preview vhost adds
+// `static.<project>`) — take the first so the origin is a single valid host.
+const ddevHost = process.env.DDEV_HOSTNAME?.split(',')[0];
 const ORIGIN = ddevHost
   ? `https://${ddevHost}:${PORT}`
   : `http://localhost:${PORT}`;
