@@ -47,6 +47,14 @@ function dq_starterkit_page_attachments_alter(array &$attachments): void {
     static fn($lib) => $lib !== $theme->getName() . '/global'
   );
 
+  // Removing the `global` library (so the built dist/main.js doesn't load
+  // alongside the dev server's) also drops its dependencies — core/drupal and
+  // core/once — which the Vite-served main.js needs for Drupal.behaviors and
+  // once. Re-attach them explicitly, or every behavior is a silent no-op in
+  // dev while working fine in the built site.
+  $attachments['#attached']['library'][] = 'core/drupal';
+  $attachments['#attached']['library'][] = 'core/once';
+
   $attachments['#attached']['html_head'][] = [
     [
       '#type'       => 'html_tag',
